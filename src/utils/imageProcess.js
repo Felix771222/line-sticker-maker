@@ -102,37 +102,55 @@ export function encodeAPNG(canvases, delay = 100, loop = 0) {
  */
 export function floodFill(imageData, startX, startY, tolerance) {
     const { width, height, data } = imageData;
-    const targetIdx = (startY * width + startX) * 4;
-    const targetR = data[targetIdx];
-    const targetG = data[targetIdx + 1];
-    const targetB = data[targetIdx + 2];
 
-    if (data[targetIdx + 3] === 0) return imageData; // Already transparent
+    // Bounds check for start point
+    if (startX < 0 || startX >= width || startY < 0 || startY >= height) return imageData;
+
+    const startIdx = (startY * width + startX) * 4;
+    // If starting pixel already transparent, nothing to do
+    if (data[startIdx + 3] === 0) return imageData;
+
+    const targetR = data[startIdx];
+    const targetG = data[startIdx + 1];
+    const targetB = data[startIdx + 2];
 
     const visited = new Uint8Array(width * height);
     const stack = [[startX, startY]];
+    const tolSq = tolerance * tolerance;
+
+    // Optional safety limit to avoid pathological infinite loops
+    const maxIterations = width * height * 4;
+    let iterations = 0;
 
     while (stack.length > 0) {
+        if (++iterations > maxIterations) break;
+
         const [x, y] = stack.pop();
-        const idx = (y * width + x) * 4;
 
+        // Skip out-of-bounds quickly
         if (x < 0 || x >= width || y < 0 || y >= height) continue;
-        if (visited[y * width + x]) continue;
 
-        const r = data[idx];
-        const g = data[idx + 1];
-        const b = data[idx + 2];
+        const vi = y * width + x;
+        if (visited[vi]) continue;
 
-        const distance = Math.sqrt(
-            Math.pow(r - targetR, 2) +
-            Math.pow(g - targetG, 2) +
-            Math.pow(b - targetB, 2)
-        );
+        // Mark visited immediately to avoid multiple pushes
+        visited[vi] = 1;
+        const idx = vi * 4;
 
-        if (distance <= tolerance) {
+        // Skip already transparent pixels
+        if (data[idx + 3] === 0) continue;
+
+        const dr = data[idx] - targetR;
+        const dg = data[idx + 1] - targetG;
+        const db = data[idx + 2] - targetB;
+        const distSq = dr * dr + dg * dg + db * db;
+
+        // Compare squared distance to avoid sqrt
+        if (distSq <= tolSq) {
+            // Make pixel transparent
             data[idx + 3] = 0;
-            visited[y * width + x] = 1;
 
+            // Add neighbors
             stack.push([x + 1, y]);
             stack.push([x - 1, y]);
             stack.push([x, y + 1]);

@@ -255,14 +255,14 @@ watch(() => [
             type="range" 
             :value="tolerance" 
             @input="$emit('update:tolerance', Number($event.target.value))"
-            min="0" max="255" 
+            min="0" max="441" 
             class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-green-500"
         >
       </div>
 
       <button 
         @click="download"
-        class="w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-bold py-4 rounded-2xl shadow-lg transition-all active:scale-95 flex items-center justify-center gap-2"
+        class="w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-bold py-4 rounded-2xl shadow-lg transition-all active:scale-95 flex items-center justify-center gap-3"
       >
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
         下載 APNG
@@ -270,7 +270,6 @@ watch(() => [
     </div>
   </div>
 </template>
-
 
 <style scoped>
 .bg-checkerboard {
